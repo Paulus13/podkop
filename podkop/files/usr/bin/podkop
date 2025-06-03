@@ -1806,6 +1806,7 @@ list_all_traffic_from_ip() {
 
 # Diagnotics
 check_proxy() {
+	SING_BOX_CONFIG_TMP="/tmp/sing-box/config.json"
     if ! command -v sing-box >/dev/null 2>&1; then
         nolog "sing-box is not installed"
         return 1
@@ -1822,7 +1823,10 @@ check_proxy() {
         nolog "Invalid configuration"
         return 1
     fi
-
+	
+	mkdir -p /tmp/sing-box
+	cat $SING_BOX_CONFIG | sed 's/cache.db/cache2.db/' > $SING_BOX_CONFIG_TMP 
+	
     jq '
     walk(
         if type == "object" then
@@ -1846,13 +1850,12 @@ check_proxy() {
                 else . end
             )
         else . end
-    )' $SING_BOX_CONFIG
+    )' $SING_BOX_CONFIG_TMP
 
     nolog "Checking proxy connection..."
 
-
    for attempt in `seq 1 5`; do
-       response=$(sing-box tools fetch ifconfig.me -D /etc/sing-box 2>/dev/null)
+       response=$(sing-box tools fetch ifconfig.me -D /tmp/sing-box 2>/dev/null)
        if echo "$response" | grep -q "^<html\|403 Forbidden"; then
            continue
        fi
