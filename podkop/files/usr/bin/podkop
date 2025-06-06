@@ -1827,30 +1827,30 @@ check_proxy() {
 	mkdir -p /tmp/sing-box
 	cat $SING_BOX_CONFIG | sed 's/cache.db/cache2.db/' > $SING_BOX_CONFIG_TMP 
 	
-    jq '
-    walk(
-        if type == "object" then
-            with_entries(
-                if .key == "uuid" then
-                    .value = "MASKED"
-                elif .key == "server" then
-                    .value = "MASKED"
-                elif .key == "server_name" then
-                    .value = "MASKED"
-                elif .key == "password" then
-                    .value = "MASKED"
-                elif .key == "public_key" then
-                    .value = "MASKED"
-                elif .key == "short_id" then
-                    .value = "MASKED"
-                elif .key == "fingerprint" then
-                    .value = "MASKED"
-                elif .key == "server_port" then
-                    .value = "MASKED"
-                else . end
-            )
-        else . end
-    )' $SING_BOX_CONFIG_TMP
+    # jq '
+    # walk(
+        # if type == "object" then
+            # with_entries(
+                # if .key == "uuid" then
+                    # .value = "MASKED"
+                # elif .key == "server" then
+                    # .value = "MASKED"
+                # elif .key == "server_name" then
+                    # .value = "MASKED"
+                # elif .key == "password" then
+                    # .value = "MASKED"
+                # elif .key == "public_key" then
+                    # .value = "MASKED"
+                # elif .key == "short_id" then
+                    # .value = "MASKED"
+                # elif .key == "fingerprint" then
+                    # .value = "MASKED"
+                # elif .key == "server_port" then
+                    # .value = "MASKED"
+                # else . end
+            # )
+        # else . end
+    # )' $SING_BOX_CONFIG_TMP
 
     nolog "Checking proxy connection..."
 
@@ -1860,23 +1860,27 @@ check_proxy() {
            continue
        fi
        if [[ $response =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-           ip=$(echo "$response" | sed -n 's/^[0-9]\+\.[0-9]\+\.[0-9]\+\.\([0-9]\+\)$/X.X.X.\1/p')
-           nolog "$ip - should match proxy IP"
-           return 0
+           # ip=$(echo "$response" | sed -n 's/^[0-9]\+\.[0-9]\+\.[0-9]\+\.\([0-9]\+\)$/X.X.X.\1/p')
+		   ip2=$response
+           # nolog "$ip - should match proxy IP"
+		   nolog "$ip2 - should match proxy IP"
+           # return 0
        elif echo "$response" | grep -q "^[0-9a-fA-F:]*::[0-9a-fA-F:]*$\|^[0-9a-fA-F:]\+$"; then
-           ip=$(echo "$response" | sed 's/\([0-9a-fA-F]\+:[0-9a-fA-F]\+:[0-9a-fA-F]\+\):.*/\1:XXXX:XXXX:XXXX/')
+           # ip=$(echo "$response" | sed 's/\([0-9a-fA-F]\+:[0-9a-fA-F]\+:[0-9a-fA-F]\+\):.*/\1:XXXX:XXXX:XXXX/')
+		   ip=$response
            nolog "$ip - should match proxy IP"
            return 0
        fi
-       if [ $attempt -eq 5 ]; then
-           nolog "Failed to get valid IP address after 5 attempts"
-           if [ -z "$response" ]; then
-               nolog "Error: Empty response"
-           else
-               nolog "Error response: $response"
-           fi
-           return 1
-       fi
+	   sleep 1
+       # if [ $attempt -eq 5 ]; then
+           # nolog "Failed to get valid IP address after 5 attempts"
+           # if [ -z "$response" ]; then
+               # nolog "Error: Empty response"
+           # else
+               # nolog "Error response: $response"
+           # fi
+           # return 1
+       # fi
    done
 }
 
